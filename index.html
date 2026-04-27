@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تحدي حقوق الإنسان - قيس جازي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        .slide-in-right { animation: slideInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Option Button Styles */
+        .option-btn {
+            background-color: #1e293b;
+            border: 2px solid #334155;
+            transition: all 0.2s ease;
+        }
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* States */
+        .correct-ans {
+            background-color: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+        }
+        .wrong-ans {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-btn { pointer-events: none; }
+
+        /* Neon Glow */
+        .glow-text { text-shadow: 0 0 10px rgba(56, 189, 248, 0.6); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-900/90 backdrop-blur-sm border-b border-slate-800 sticky top-0 z-50 px-4 py-4 shadow-lg">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <h1 class="text-xl font-bold text-sky-400 glow-text">تحدي حقوق الإنسان</h1>
+            <div class="text-xs font-bold bg-sky-500/10 text-sky-300 px-3 py-1.5 rounded-full border border-sky-500/30">
+                إعداد: قيس جازي
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="max-w-md mx-auto mt-4">
+            <div class="flex justify-between text-xs text-slate-400 mb-1 font-bold">
+                <span id="question-counter">سؤال 1 من 40</span>
+                <span>النتيجة: <span id="current-score" class="text-emerald-400">0</span></span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2">
+                <div id="progress-fill" class="bg-gradient-to-r from-sky-500 to-purple-500 h-2 rounded-full transition-all duration-300" style="width: 2.5%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Quiz Area -->
+    <main class="flex-grow flex flex-col justify-center px-4 py-6 max-w-md mx-auto w-full relative">
+        
+        <!-- Question Card -->
+        <div id="quiz-card" class="w-full slide-in-right">
+            <div class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700/50 mb-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-sky-500/5 rounded-bl-full -z-0"></div>
+                <h2 id="question-text" class="text-xl font-bold text-white leading-relaxed relative z-10">
+                    <!-- Question will appear here -->
+                </h2>
+            </div>
+
+            <!-- Options Grid -->
+            <div id="options-container" class="flex flex-col gap-3">
+                <!-- Options will appear here -->
+            </div>
+        </div>
+
+        <!-- Result Screen (Hidden by default) -->
+        <div id="result-screen" class="hidden w-full text-center fade-in py-8">
+            <div class="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-20 -right-20 w-40 h-40 bg-sky-500/20 blur-3xl rounded-full"></div>
+                
+                <h2 class="text-3xl font-bold text-white mb-2">انتهى التحدي!</h2>
+                <p class="text-slate-400 mb-8 font-medium">تم إعداد الاختبار بواسطة <span class="text-sky-400 font-bold">قيس جازي</span></p>
+                
+                <!-- Score Circle -->
+                <div class="w-36 h-36 mx-auto relative flex items-center justify-center rounded-full bg-slate-900 border-4 border-slate-700 mb-6 shadow-[0_0_30px_rgba(56,189,248,0.15)]">
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        <path id="score-ring" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="0, 100" class="transition-all duration-1000 ease-out" />
+                    </svg>
+                    <div class="text-center">
+                        <span id="final-score" class="text-4xl font-bold text-white block">0</span>
+                        <span class="text-sm text-slate-400 block mt-1">من 40</span>
+                    </div>
+                </div>
+                
+                <h3 id="feedback-title" class="text-2xl font-bold mb-2"></h3>
+                <p id="feedback-msg" class="text-slate-300 text-sm leading-relaxed mb-8"></p>
+                
+                <button onclick="location.reload()" class="w-full bg-gradient-to-r from-sky-500 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                    إعادة الاختبار
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // Quiz Data (40 Questions)
+        const questions = [
+            { q: "المفهوم الذي يُعرّف بأنه (مكنة أو سلطة يقرها القانون للفرد) هو:", options: ["القانون", "الواجب", "الحق", "الحرية"], ans: 2 },
+            { q: "القدرة على التصرف بحرية تامة دون أي إكراه أو ضغط هي تعريف لـ:", options: ["العدالة", "الحرية", "السيادة", "الحق"], ans: 1 },
+            { q: "أي من الحقوق التالية يُعتبر من (الحقوق الشخصية التقليدية)؟", options: ["تأسيس الأحزاب", "حق الأمن", "حق التعليم", "تأسيس النقابات"], ans: 1 },
+            { q: "حرية الرأي والتعبير تُصنف ضمن أي فئة من الحقوق؟", options: ["الاقتصادية والاجتماعية", "السياسية", "الشخصية التقليدية", "الفكرية والثقافية"], ans: 3 },
+            { q: "حق العمل وتأسيس النقابات يصنفان معاً ضمن:", options: ["الحقوق السياسية", "الحقوق الاقتصادية والاجتماعية", "الحقوق الفكرية", "الحريات الشخصية"], ans: 1 },
+            { q: "النظام التشريعي الذي سبق المواثيق الدولية في إقرار حقوق الإنسان هو:", options: ["ميثاق الأمم المتحدة", "الإعلان العالمي", "الشريعة الإسلامية", "الدستور الأردني"], ans: 2 },
+            { q: "من المبادئ الأساسية التي ركزت عليها الشريعة الإسلامية في الحكم:", options: ["احتكار السلطة", "الشورى", "الفردية المطلقة", "إلغاء الملكية"], ans: 1 },
+            { q: "المذهب الذي يُعارض تدخل الدولة في النشاط الاقتصادي ويقدس الحرية الفردية هو:", options: ["المذهب الاشتراكي", "المذهب الاجتماعي", "المذهب الفردي (الرأسمالي)", "المذهب الشيوعي"], ans: 2 },
+            { q: "النظام الذي يسعى لإلغاء الملكية الخاصة لوسائل الإنتاج بهدف تحقيق المساواة هو:", options: ["المذهب الرأسمالي", "المذهب الاشتراكي", "المذهب الفردي", "المذهب الاجتماعي"], ans: 1 },
+            { q: "المذهب الذي يقف وسطاً بين الرأسمالية والاشتراكية ليحقق العدالة الاجتماعية هو:", options: ["المذهب الاجتماعي", "المذهب الفردي", "الرأسمالية المعدلة", "الاشتراكية المتطرفة"], ans: 0 },
+            { q: "الوثيقة الدولية التي وضعت (الأساس) لاحترام حقوق الإنسان والمساواة بين الشعوب دون تمييز هي:", options: ["العهدان الدوليان", "الدستور الأردني", "ميثاق الأمم المتحدة", "وثيقة جنيف"], ans: 2 },
+            { q: "في أي عام صدر الإعلان العالمي لحقوق الإنسان؟", options: ["1945", "1948", "1966", "1970"], ans: 1 },
+            { q: "ما هو الوصف الفقهي الدقيق لقوة الإعلان العالمي لحقوق الإنسان (1948)؟", options: ["ملزم قانونياً لجميع الدول", "توجيهات أدبية تكتسب الإلزام عند تضمينها بالدساتير", "مجرد نصيحة غير معترف بها", "يُطبق فقط في حالة الحروب"], ans: 1 },
+            { q: "ما هو الهدف الرئيسي من إصدار (العهدين الدوليين) عام 1966؟", options: ["إلغاء الإعلان العالمي", "تأسيس الأمم المتحدة", "تفصيل الحقوق السابقة بصورة أدق تطبيقياً", "وضع عقوبات عسكرية"], ans: 2 },
+            { q: "حسب الدستور الأردني، تفتيش المسكن (حرمة المسكن):", options: ["مسموح في أي وقت", "لا يجوز إلا بأمر قضائي", "مسموح بموافقة المختار", "غير مسموح إطلاقاً"], ans: 1 },
+            { q: "سرية المراسلات في التشريع الأردني تُعتبر من:", options: ["الحقوق السياسية", "الحقوق الاقتصادية", "الحريات الشخصية والتقليدية", "الحقوق الثقافية"], ans: 2 },
+            { q: "حق المواطن في الحصول على الجنسية يُصنف في الدستور كحق:", options: ["شخصي تقليدي", "سياسي", "اجتماعي", "فكري"], ans: 0 },
+            { q: "تمكين حقوق ذوي الإعاقة والمرأة والطفل يندرج تحت فئة:", options: ["الحقوق الفكرية", "الحريات الشخصية والتقليدية", "الحقوق السياسية", "لا شيء مما ذكر"], ans: 1 },
+            { q: "النظام الانتخابي الحديث في الأردن يعتمد على نظام التصويت بـ:", options: ["قائمة واحدة فقط", "قائمتين (محلية وحزبية وطنية)", "التصويت الفردي السري", "نظام الكوتا فقط"], ans: 1 },
+            { q: "السن القانوني المسموح به حالياً للانضمام للأحزاب في الأردن هو:", options: ["18 عاماً", "21 عاماً", "25 عاماً", "30 عاماً"], ans: 0 },
+            { q: "الهدف الأساسي من تخفيض سن الانضمام للأحزاب في الأردن هو:", options: ["تقليل البطالة", "تعزيز انخراط الشباب سياسياً", "زيادة الضرائب", "الحد من الهجرة"], ans: 1 },
+            { q: "وفقاً للقانون، تولي المناصب العامة في الدولة يجب أن يبنى على أساس:", options: ["المنطقة الجغرافية", "الأقدمية", "الكفاءة", "الوضع المالي"], ans: 2 },
+            { q: "حق (اللجوء السياسي) يُصنف ضمن الحقوق:", options: ["الاقتصادية", "الفكرية", "السياسية", "الشخصية"], ans: 2 },
+            { q: "حق المواطن في (مخاطبة السلطات العامة) يُعتبر حقاً:", options: ["سياسياً", "اجتماعياً", "اقتصادياً", "ثقافياً"], ans: 0 },
+            { q: "الدستور الأردني يُحرم (السخرة). ماذا تعني السخرة؟", options: ["العمل لساعات طويلة", "العمل الإجباري بدون إرادة أو أجر", "عمل الأطفال", "العمل الخاص"], ans: 1 },
+            { q: "الحق في تأسيس (الجمعيات) يعتبر حقاً:", options: ["سياسياً", "اقتصادياً واجتماعياً", "فكرياً", "شخصياً"], ans: 1 },
+            { q: "الضمان الاجتماعي والتأمين الصحي ضمن الحقوق:", options: ["السياسية", "الفكرية", "الاقتصادية والاجتماعية", "الشخصية"], ans: 2 },
+            { q: "حق (الملكية الفردية) يندرج تحت الحقوق:", options: ["الشخصية", "الفكرية", "السياسية", "الاقتصادية والاجتماعية"], ans: 3 },
+            { q: "حرية العقيدة وممارسة الشعائر الدينية مكفولة بشرط:", options: ["أن تتم في الخفاء", "ألا تخل بالنظام العام والآداب", "دفع رسوم", "تصريح أمني"], ans: 1 },
+            { q: "حق التعليم للمراحل الأساسية في الأردن يوصف بأنه:", options: ["إلزامي ومجاني", "اختياري ومجاني", "إلزامي ومدفوع", "اختياري ومدفوع"], ans: 0 },
+            { q: "حرية الصحافة في الأردن تُعتبر:", options: ["مطلقة بلا قيود", "مكفولة ضمن حدود القانون", "ممنوعة تماماً", "حكومية فقط"], ans: 1 },
+            { q: "المذهب الاشتراكي يهدف بشكل رئيسي إلى تقليل:", options: ["الإنتاج", "عدد السكان", "الفروق الطبقية", "المدارس الخاصة"], ans: 2 },
+            { q: "أي من الحقوق التالية (لا يُعتبر) من الحقوق السياسية؟", options: ["حق الانتخاب", "حق الترشح", "تأسيس النقابات", "الانضمام للأحزاب"], ans: 2 },
+            { q: "أي من التالي (لا يُعتبر) من الحقوق الاقتصادية؟", options: ["حق العمل", "حق التملك", "الضمان الاجتماعي", "حق اللجوء السياسي"], ans: 3 },
+            { q: "الإعلان العالمي لحقوق الإنسان (1948) شمل حقوقاً:", options: ["سياسية ومدنية فقط", "اقتصادية واجتماعية فقط", "مدنية وسياسية واقتصادية واجتماعية", "اقتصادية فقط"], ans: 2 },
+            { q: "يرى أنصار (المذهب الاجتماعي) أن الملكية الفردية:", options: ["يجب إلغاؤها", "مقبولة مع تدخل الدولة لمنع الاحتكار", "مقدسة ولا تتدخل الدولة بها", "للأغنياء فقط"], ans: 1 },
+            { q: "المذهب الفردي يُعرف أيضاً باسم:", options: ["المذهب الشيوعي", "المذهب الرأسمالي", "المذهب الديكتاتوري", "المذهب التعاوني"], ans: 1 },
+            { q: "حرية التعليم والرأي تصنفان ضمن الحقوق:", options: ["الشخصية", "السياسية", "الاقتصادية", "الفكرية والثقافية"], ans: 3 },
+            { q: "يضمن للفرد عدم التعرض للاعتقال التعسفي:", options: ["حق الجنسية", "حق الأمن", "حق التنقل", "حرمة المسكن"], ans: 1 },
+            { q: "تعزيز حقوق (المرأة والطفل) أدرج في الدستور تحت:", options: ["الحقوق الاقتصادية", "الحقوق الفكرية", "الحريات الشخصية والتقليدية", "السياسية"], ans: 2 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let canAnswer = true;
+
+        // DOM Elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const questionCounter = document.getElementById('question-counter');
+        const progressFill = document.getElementById('progress-fill');
+        const currentScore = document.getElementById('current-score');
+        const quizCard = document.getElementById('quiz-card');
+
+        // Initialize App
+        function init() {
+            // Shuffle questions (optional, but good for replayability. Let's keep them in order for now as requested).
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            const q = questions[currentQuestion];
+            
+            // Update UI
+            questionCounter.innerText = `سؤال ${currentQuestion + 1} من ${questions.length}`;
+            progressFill.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+            
+            // Add slight animation to card
+            quizCard.classList.remove('slide-in-right');
+            void quizCard.offsetWidth; // trigger reflow
+            quizCard.classList.add('slide-in-right');
+
+            questionText.innerText = q.q;
+            optionsContainer.innerHTML = '';
+
+            // Render Options
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-right p-4 rounded-xl font-medium text-slate-200 flex items-center justify-between';
+                btn.onclick = () => handleAnswer(index, btn);
+                
+                const spanText = document.createElement('span');
+                spanText.innerText = opt;
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'w-5 h-5 rounded-full border-2 border-slate-600 flex-shrink-0 ml-2 icon-indicator';
+
+                btn.appendChild(spanText);
+                btn.appendChild(iconDiv);
+                
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            if (!canAnswer) return;
+            canAnswer = false; // Prevent multiple clicks
+
+            const q = questions[currentQuestion];
+            const allBtns = optionsContainer.querySelectorAll('button');
+            
+            // Disable all buttons
+            allBtns.forEach(b => b.classList.add('disabled-btn'));
+
+            // Check Answer
+            if (selectedIndex === q.ans) {
+                // Correct
+                score++;
+                currentScore.innerText = score;
+                btnElement.classList.add('correct-ans');
+                btnElement.querySelector('.icon-indicator').innerHTML = `<svg class="w-full h-full text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>`;
+                btnElement.querySelector('.icon-indicator').classList.replace('border-slate-600', 'border-transparent');
+            } else {
+                // Wrong
+                btnElement.classList.add('wrong-ans');
+                btnElement.querySelector('.icon-indicator').innerHTML = `<svg class="w-full h-full text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>`;
+                btnElement.querySelector('.icon-indicator').classList.replace('border-slate-600', 'border-transparent');
+                
+                // Highlight correct answer automatically
+                const correctBtn = allBtns[q.ans];
+                correctBtn.classList.add('correct-ans');
+            }
+
+            // Auto advance after 1.2 seconds
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1200);
+        }
+
+        function showResults() {
+            document.getElementById('quiz-card').style.display = 'none';
+            document.querySelector('header').style.display = 'none';
+            
+            const resultScreen = document.getElementById('result-screen');
+            resultScreen.classList.remove('hidden');
+
+            // Animate Score
+            document.getElementById('final-score').innerText = score;
+            const percentage = (score / questions.length) * 100;
+            
+            // Trigger SVG circle animation
+            setTimeout(() => {
+                document.getElementById('score-ring').setAttribute('stroke-dasharray', `${percentage}, 100`);
+            }, 100);
+
+            // Feedback logic
+            const titleObj = document.getElementById('feedback-title');
+            const msgObj = document.getElementById('feedback-msg');
+
+            if (score >= 35) {
+                titleObj.innerText = "عمل أسطوري يا بطل! 🏆";
+                titleObj.className = "text-2xl font-bold text-emerald-400 mb-2";
+                msgObj.innerText = "أنت مستعد تماماً لاكتساح امتحان الميدتيرم. لقد حفظت المادة بامتياز.";
+            } else if (score >= 25) {
+                titleObj.innerText = "أداء رائع جداً! 🌟";
+                titleObj.className = "text-2xl font-bold text-sky-400 mb-2";
+                msgObj.innerText = "معلوماتك ممتازة، مراجعة سريعة قبل الامتحان وستحصل على العلامة الكاملة.";
+            } else if (score >= 15) {
+                titleObj.innerText = "أداء متوسط، يمكنك الأفضل 💪";
+                titleObj.className = "text-2xl font-bold text-amber-400 mb-2";
+                msgObj.innerText = "تحتاج لإعادة قراءة ملخص بعض الوحدات، لا تتردد في إعادة الاختبار لتثبيت الحفظ.";
+            } else {
+                titleObj.innerText = "لا تستسلم، كرر المحاولة! 📚";
+                titleObj.className = "text-2xl font-bold text-red-400 mb-2";
+                msgObj.innerText = "يبدو أنك لم تقرأ الملخص جيداً. ادرس المادة ثم أعد التحدي وستلاحظ الفرق.";
+            }
+        }
+
+        // Start Quiz
+        init();
+    </script>
+</body>
+</html>
+
+```
